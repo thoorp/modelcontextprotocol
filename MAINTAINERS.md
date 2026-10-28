@@ -2,22 +2,28 @@
 
 This document lists current maintainers in the Model Context Protocol project.
 
-**Last updated:** January 13, 2026
+**Last updated:** October 1, 2026
 
 ## Lead Maintainers
 
 - [David Soria Parra](https://github.com/dsp-ant)
-- _[Justin Spahr-Summers](https://github.com/jspahrsummers) (currently inactive)_
+- [Den Delimarsky](https://github.com/localden)
 
 ## Core Maintainers
 
-- [Inna Harper](https://github.com/ihrpr)
-- [Basil Hosmer](https://github.com/bhosmer-ant)
+- [Caitie McCaffrey](https://github.com/CaitieM20)
+- [Clare Liguori](https://github.com/clareliguori)
+- [Kurtis Van Gent](https://github.com/kurtisvg)
+- [Nick Cooper](https://github.com/nickcoai)
 - [Paul Carleton](https://github.com/pcarleton)
-- [Nick Cooper](https://github.com/nicknotfun)
-- [Nick Aldridge](https://github.com/000-000-000-000-000)
-- [Che Liu](https://github.com/pwwpche)
-- [Den Delimarsky](https://github.com/localden)
+- [Peter Alexander](https://github.com/poita)
+
+## Emeritus
+
+- [Justin Spahr-Summers](https://github.com/jspahrsummers) (Co-Inventor, Lead Maintainer Emeritus)
+- [Basil Hosmer](https://github.com/bhosmer-ant) (Core Maintainer Emeritus)
+- [Che Liu](https://github.com/pwwpche) (Core Maintainer Emeritus)
+- [Nick Aldridge](https://github.com/000-000-000-000-000) (Core Maintainer Emeritus)
 
 ## SDK Maintainers
 
@@ -44,9 +50,10 @@ This document lists current maintainers in the Model Context Protocol project.
 
 ### Go SDK
 
-- [Rob Findley](https://github.com/findleyr)
+- [Maciej Kisiel](https://github.com/maciej-kisiel)
+- [Yaroslav Shevchuk](https://github.com/yarolegovich)
+- [Guglielmo Colombo](https://github.com/guglielmo-san)
 - [Jonathan Amsterdam](https://github.com/jba)
-- [Sam Thanawalla](https://github.com/samthanawalla)
 
 ### C# SDK
 
@@ -110,13 +117,18 @@ This document lists current maintainers in the Model Context Protocol project.
 - [Cliff Hall](https://github.com/cliffhall)
 - [Konstantin Konstantinov](https://github.com/KKonstantinov)
 - [Ola Hungerford](https://github.com/olaservo)
+- [Bob Dickinson](https://github.com/BobDickinson)
 
 ### Registry
 
-- [Toby Padilla](https://github.com/toby)
 - [Tadas Antanavicius](https://github.com/tadasant)
-- [Adam Jones](https://github.com/domdomegg)
 - [Radoslav (Rado) Dimitrov](https://github.com/rdimitrov)
+- [Bob Dickinson](https://github.com/BobDickinson)
+
+#### Registry Emeritus
+
+- [Adam Jones](https://github.com/domdomegg)
+- [Toby Padilla](https://github.com/toby)
 
 ### MCPB (Model Context Protocol Bundle)
 
@@ -132,6 +144,12 @@ This document lists current maintainers in the Model Context Protocol project.
 - [Shaun Smith](https://github.com/evalstate)
 - [Jonathan Hefner](https://github.com/jonathanhefner)
 
+### Conformance
+
+- [Paul Carleton](https://github.com/pcarleton)
+- [Felix Weinberger](https://github.com/felixweinberger)
+- [Takashi Norimatsu](https://github.com/tnorimat)
+
 ## Community Moderators
 
 - [Ola Hungerford](https://github.com/olaservo)
@@ -139,6 +157,7 @@ This document lists current maintainers in the Model Context Protocol project.
 - [Shaun Smith](https://github.com/evalstate)
 - [Jonathan Hefner](https://github.com/jonathanhefner)
 - [Tadas Antanavicius](https://github.com/tadasant)
+- [Peder Holdgaard Pedersen](https://github.com/PederHP)
 
 ## Working Group & Interest Group Maintainers
 
@@ -180,14 +199,15 @@ This document lists current maintainers in the Model Context Protocol project.
 - [Shaun Smith](https://github.com/evalstate)
 - [Harvey Tuch](https://github.com/htuch)
 
-### Server Identity Working Group
+### Server Card Working Group
 
+- [Tadas Antanavicius](https://github.com/tadasant)
 - [David Soria Parra](https://github.com/dsp-ant)
-- [Nick Cooper](https://github.com/nicknotfun)
+- [Sam Morrow](https://github.com/SamMorrowDrums)
 
 ### Agents Working Group
 
-- [Peter Alexander](https://github.com/pja-ant)
+- [Peter Alexander](https://github.com/poita)
 - [Luca Chang](https://github.com/LucaButBoring)
 - [Inna Harper](https://github.com/ihrpr)
 
@@ -195,6 +215,20 @@ This document lists current maintainers in the Model Context Protocol project.
 
 - [Liad Yosef](https://github.com/liady)
 - [Ido Salomon](https://github.com/idosal)
+
+### Progressive Disclosure Working Group
+
+- [Tapan Chugh](https://github.com/chughtapan)
+- [Sam Morrow](https://github.com/SamMorrowDrums)
+- [Kurtis Van Gent](https://github.com/kurtisvg)
+
+### Tool Annotations Interest Group
+
+- [Sam Morrow](https://github.com/SamMorrowDrums)
+
+### Tool Scopes Working Group
+
+- [Sam Morrow](https://github.com/SamMorrowDrums)
 
 ## About This Document
 

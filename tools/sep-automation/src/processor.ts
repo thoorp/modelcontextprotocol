@@ -2,20 +2,40 @@
  * SEP Processing - core business logic for SEP lifecycle automation
  */
 
-import type { Logger } from 'pino';
-import type { Config } from './config.js';
-import type { SEPAnalyzer } from './sep/analyzer.js';
-import type { MaintainerResolver } from './maintainers/resolver.js';
-import type { TransitionHandler } from './actions/transition.js';
-import type { PingHandler } from './actions/ping.js';
-import { ActionType, type SEPItem, type ActionResult, type SEPState } from './types.js';
+import type { Logger } from "pino";
+import type { Config } from "./config.js";
+import type { SEPAnalyzer } from "./sep/analyzer.js";
+import type { MaintainerResolver } from "./maintainers/resolver.js";
+import type { TransitionHandler } from "./actions/transition.js";
+import type { PingHandler } from "./actions/ping.js";
+import {
+  ActionType,
+  type SEPItem,
+  type ActionResult,
+  type SEPState,
+  type StaleAnalysis,
+} from "./types.js";
 
 /** Summary data collected during processing */
 export interface SummaryData {
-  transitions: Array<{ item: SEPItem; fromState: SEPState | null; toState: SEPState; sponsor: string }>;
-  pings: Array<{ item: SEPItem; pingTarget: 'author' | 'sponsor' | 'maintainer'; targetUser: string; daysSinceActivity: number }>;
+  transitions: Array<{
+    item: SEPItem;
+    fromState: SEPState | null;
+    toState: SEPState;
+    sponsor: string;
+  }>;
+  pings: Array<{
+    item: SEPItem;
+    pingTarget: "author" | "sponsor" | "maintainer";
+    targetUser: string;
+    daysSinceActivity: number;
+  }>;
   needsSponsor: Array<{ item: SEPItem; daysSinceActivity: number }>;
-  dormant: Array<{ item: SEPItem; daysSinceActivity: number; wasClosed: boolean }>;
+  dormant: Array<{
+    item: SEPItem;
+    daysSinceActivity: number;
+    wasClosed: boolean;
+  }>;
 }
 
 /** Result of processing a SEP */
@@ -34,7 +54,7 @@ export class SEPProcessor {
     private readonly maintainers: MaintainerResolver,
     private readonly transitionHandler: TransitionHandler,
     private readonly pingHandler: PingHandler,
-    private readonly logger: Logger
+    private readonly logger: Logger,
   ) {}
 
   /**
@@ -49,11 +69,14 @@ export class SEPProcessor {
       dormant: [],
     };
 
-    this.logger.debug({ number: sep.number, title: sep.title, state: sep.state }, 'Processing SEP');
+    this.logger.debug(
+      { number: sep.number, title: sep.title, state: sep.state },
+      "Processing SEP",
+    );
 
     // Skip closed SEPs
     if (sep.isClosed) {
-      this.logger.debug({ number: sep.number }, 'Skipping closed SEP');
+      this.logger.debug({ number: sep.number }, "Skipping closed SEP");
       return { results, summaryData };
     }
 
@@ -66,29 +89,36 @@ export class SEPProcessor {
           item: sep,
           fromState: sep.state,
           toState: transitionResult.action.toState,
-          sponsor: transitionResult.action.targetUser ?? 'unknown',
+          sponsor: transitionResult.action.targetUser ?? "unknown",
         });
       }
       return { results, summaryData }; // Don't check staleness if we just transitioned
     }
 
     // Check staleness
-    const stalenessResult = await this.checkStaleness(sep);
-    if (stalenessResult) {
-      results.push(stalenessResult);
-      this.updateSummaryFromStaleness(stalenessResult, sep, summaryData);
+    const stalenessAction = await this.checkStaleness(sep);
+    if (stalenessAction) {
+      results.push(stalenessAction.result);
+      await this.updateSummaryFromStaleness(
+        stalenessAction.result,
+        stalenessAction.analysis,
+        summaryData,
+      );
     }
 
     // Check maintainer accountability
-    if (sep.state === 'draft' || sep.state === 'in-review') {
+    if (sep.state === "draft" || sep.state === "in-review") {
       const maintainerResults = await this.checkMaintainerAccountability(sep);
       results.push(...maintainerResults);
       for (const result of maintainerResults) {
         if (result.success && result.action.targetUser) {
-          const activity = await this.analyzer.checkMaintainerActivity(sep, result.action.targetUser);
+          const activity = await this.analyzer.checkUserActivity(
+            sep,
+            result.action.targetUser,
+          );
           summaryData.pings.push({
             item: sep,
-            pingTarget: 'maintainer',
+            pingTarget: "maintainer",
             targetUser: result.action.targetUser,
             daysSinceActivity: activity.daysSinceActivity,
           });
@@ -102,8 +132,10 @@ export class SEPProcessor {
   /**
    * Check if auto-transition should occur (proposal → draft)
    */
-  private async checkAutoTransition(sep: SEPItem): Promise<ActionResult | null> {
-    if (sep.state !== 'proposal' || sep.assignees.length === 0) {
+  private async checkAutoTransition(
+    sep: SEPItem,
+  ): Promise<ActionResult | null> {
+    if (sep.state !== "proposal" || sep.assignees.length === 0) {
       return null;
     }
 
@@ -112,60 +144,78 @@ export class SEPProcessor {
       return null;
     }
 
-    this.logger.info({ number: sep.number, sponsor }, 'Auto-transitioning proposal to draft');
+    this.logger.info(
+      { number: sep.number, sponsor },
+      "Auto-transitioning proposal to draft",
+    );
 
     return this.transitionHandler.executeTransition(
       sep,
-      'draft',
+      "draft",
       sponsor,
-      this.config.dryRun
+      this.config.dryRun,
     );
   }
 
   /**
    * Check for staleness and take appropriate action
    */
-  private async checkStaleness(sep: SEPItem): Promise<ActionResult | null> {
+  private async checkStaleness(
+    sep: SEPItem,
+  ): Promise<{ result: ActionResult; analysis: StaleAnalysis } | null> {
     const analysis = await this.analyzer.analyze(sep);
 
     if (!analysis.shouldPing && !analysis.shouldMarkDormant) {
       return null;
     }
 
-    return this.pingHandler.executePing(analysis, this.config.dryRun);
+    const result = await this.pingHandler.executePing(
+      analysis,
+      this.config.dryRun,
+    );
+    return { result, analysis };
   }
 
   /**
    * Check maintainer accountability and ping inactive maintainers.
    * Only pings assignees who are verified core maintainers.
    */
-  private async checkMaintainerAccountability(sep: SEPItem): Promise<ActionResult[]> {
+  private async checkMaintainerAccountability(
+    sep: SEPItem,
+  ): Promise<ActionResult[]> {
     const results: ActionResult[] = [];
 
     for (const assignee of sep.assignees) {
       // Only ping core maintainers, not regular assignees
-      const isMaintainer = await this.maintainers.isCoreMaintainer(assignee);
-      if (!isMaintainer) {
+      const canSponsor = await this.maintainers.canSponsor(assignee);
+      if (!canSponsor) {
         this.logger.debug(
           { number: sep.number, assignee },
-          'Skipping non-maintainer assignee for accountability check'
+          "Skipping non-maintainer assignee for accountability check",
         );
         continue;
       }
 
-      const activity = await this.analyzer.checkMaintainerActivity(sep, assignee);
+      const activity = await this.analyzer.checkUserActivity(
+        sep,
+        assignee,
+      );
 
       if (activity.shouldPing) {
         this.logger.info(
-          { number: sep.number, maintainer: assignee, daysSinceActivity: activity.daysSinceActivity },
-          'Maintainer inactive, pinging'
+          {
+            number: sep.number,
+            maintainer: assignee,
+            daysSinceActivity: activity.daysSinceActivity,
+          },
+          "Maintainer inactive, pinging",
         );
 
         const result = await this.pingHandler.pingMaintainerDirectly(
           sep,
           assignee,
           activity.daysSinceActivity,
-          this.config.dryRun
+          this.config.dryRun,
         );
         results.push(result);
       }
@@ -179,14 +229,14 @@ export class SEPProcessor {
    */
   private async updateSummaryFromStaleness(
     result: ActionResult,
-    sep: SEPItem,
-    summary: SummaryData
+    analysis: StaleAnalysis,
+    summary: SummaryData,
   ): Promise<void> {
     if (!result.success) {
       return;
     }
 
-    const analysis = await this.analyzer.analyze(sep);
+    const { item: sep } = analysis;
 
     switch (result.action.type) {
       case ActionType.NeedsSponsor:
@@ -223,13 +273,13 @@ export class SEPProcessor {
    */
   private async getTargetUser(
     sep: SEPItem,
-    pingTarget: 'author' | 'sponsor' | 'maintainer'
+    pingTarget: "author" | "sponsor" | "maintainer",
   ): Promise<string | null> {
     switch (pingTarget) {
-      case 'author':
+      case "author":
         return sep.author;
-      case 'sponsor':
-      case 'maintainer':
+      case "sponsor":
+      case "maintainer":
         return this.maintainers.getSponsor([...sep.assignees]);
       default:
         return null;

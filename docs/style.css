@@ -8,6 +8,11 @@
   h6 {
     font-weight: 400;
   }
+
+  /* Fix code block line highlight color */
+  code .line-highlight {
+    --primary-light: 100 175 250;
+  }
 }
 
 
@@ -26,23 +31,33 @@ body:has(#enable-section-numbers) {
 
   #content-area h2[id],
   #table-of-contents li[data-depth="0"] {
+    counter-increment: h2-counter;
     counter-set: h3-counter h4-counter h5-counter h6-counter;
   }
 
   #content-area h3[id],
   #table-of-contents li[data-depth="1"] {
+    counter-increment: h3-counter;
     counter-set: h4-counter h5-counter h6-counter;
   }
 
   #content-area h4[id],
   #table-of-contents li[data-depth="2"] {
+    counter-increment: h4-counter;
     counter-set: h5-counter h6-counter;
   }
 
   #content-area h5[id],
   #content-area h5,
   #table-of-contents li[data-depth="3"] {
+    counter-increment: h5-counter;
     counter-set: h6-counter;
+  }
+
+  #content-area h6[id],
+  #content-area h6,
+  #table-of-contents li[data-depth="4"] {
+    counter-increment: h6-counter;
   }
 
   #table-of-contents li a::before {
@@ -51,19 +66,16 @@ body:has(#enable-section-numbers) {
 
   #content-area h2[id]::before,
   #table-of-contents li[data-depth="0"] a::before {
-    counter-increment: h2-counter;
     content: counter(h2-counter) ". ";
   }
 
   #content-area h3[id]::before,
   #table-of-contents li[data-depth="1"] a::before {
-    counter-increment: h3-counter;
     content: counter(h2-counter) "." counter(h3-counter) " ";
   }
 
   #content-area h4[id]::before,
   #table-of-contents li[data-depth="2"] a::before {
-    counter-increment: h4-counter;
     content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter)
       " ";
   }
@@ -71,7 +83,6 @@ body:has(#enable-section-numbers) {
   #content-area h5[id]::before,
   #content-area h5::before,
   #table-of-contents li[data-depth="3"] a::before {
-    counter-increment: h5-counter;
     content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter)
       "." counter(h5-counter) " ";
   }
@@ -79,7 +90,6 @@ body:has(#enable-section-numbers) {
   #content-area h6[id]::before,
   #content-area h6::before,
   #table-of-contents li[data-depth="4"] a::before {
-    counter-increment: h6-counter;
     content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter)
       "." counter(h5-counter) "." counter(h6-counter) " ";
   }
@@ -309,7 +319,7 @@ body:has(#schema-reference) {
 
     /* Sub-members */
     .tsd-type-declaration {
-      /* Templated heading */
+      /* Templated heading ("Type Declaration") */
       [data-typedoc-h="4"] {
         display: none;
       }
@@ -359,16 +369,42 @@ body:has(#schema-reference) {
       display: none;
     }
   }
+
+  /* Types with only index properties (e.g., `type Foo = { [key: string]: unknown }`) */
+  .type > .tsd-type-declaration {
+    /* Hide property if no doc comments */
+    &:not(:has(.tsd-comment)) {
+      display: none;
+    }
+
+    /* Templated heading ("Type Declaration") */
+    [data-typedoc-h="4"] {
+      display: none;
+    }
+
+    /* Index property */
+    [data-typedoc-h="5"] {
+      font-family: var(--font-mono);
+      font-weight: 700;
+    }
+  }
 }
 
 
 
 /*** LF Projects copyright footer ***/
 
+/* footer.js appends #lf-copyright into Mintlify's #footer flex row, which
+   already draws the top border. Let the row wrap so the notice sits beside
+   the social icons when there is room and drops to its own line otherwise. */
+#footer {
+  flex-wrap: wrap;
+  row-gap: 1.5rem;
+}
+
 #lf-copyright {
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid light-dark(rgb(var(--gray-950)/.1), rgba(255 255 255/0.1));
+  flex: 1 1 32rem;
+  min-width: 0;
   text-align: center;
   font-size: 0.875rem;
   color: rgb(var(--gray-500));

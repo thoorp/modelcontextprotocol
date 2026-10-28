@@ -1,24 +1,24 @@
 # Security Policy
 
-Thank you for helping us keep the SDKs and systems they interact with secure.
+Thank you for helping keep the Model Context Protocol and its ecosystem secure.
 
 ## Reporting Security Issues
 
-This SDK is maintained by [Anthropic](https://www.anthropic.com/) as part of the Model
-Context Protocol project.
+If you discover a security vulnerability in this repository, please report it through
+the [GitHub Security Advisory process](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability)
+for this repository.
 
-The security of our systems and user data is Anthropic's top priority. We appreciate the
-work of security researchers acting in good faith in identifying and reporting potential
-vulnerabilities.
+Please **do not** report security vulnerabilities through public GitHub issues, discussions,
+or pull requests.
 
-Our security program is managed on HackerOne and we ask that any validated vulnerability
-in this functionality be reported through their
-[submission form](https://hackerone.com/anthropic-vdp/reports/new?type=team&report_type=vulnerability).
+## What to Include
 
-## Vulnerability Disclosure Program
+To help us triage and respond quickly, please include:
 
-Our Vulnerability Program Guidelines are defined on our
-[HackerOne program page](https://hackerone.com/anthropic-vdp).
+- A description of the vulnerability
+- Steps to reproduce the issue
+- The potential impact
+- Any suggested fixes (optional)
 
 ## Intended Behaviors and Trust Model
 
@@ -57,7 +57,7 @@ to certain servers based on configuration; users should review these settings.
 ### Behaviors That Are Not Vulnerabilities
 
 The following behaviors are intentional features of MCP and are **not** eligible for
-security vulnerability reports or bug bounty rewards:
+security vulnerability reports:
 
 #### Command Execution for STDIO Transport
 
@@ -72,6 +72,22 @@ command execution is an intended feature, not a vulnerability:
 executes those configurations. Reports about "arbitrary command execution" via STDIO
 transport configuration, whether in MCP client applications or SDKs, are not
 vulnerabilities. Process spawning is a core feature of the STDIO transport mechanism.
+
+#### STDIO Transport Trust Boundary
+
+When using the stdio transport, the client spawns the server as a local subprocess in the
+designated environment (e.g., OS, containerized sandbox) and both run with equivalent
+environment-level privilege. The SDK does not defend either peer against a malicious
+counterpart across the stdio channel: a malicious server already has arbitrary code
+execution by virtue of being run, and a malicious client already has full process control
+over the server it spawned.
+
+Out of scope (file as a regular issue, no CVE/GHSA): reports whose only impact is that one
+stdio peer can crash, hang, exhaust resources of, or otherwise deny service to the other.
+If the affected SDK code is reachable via any of the supported remote transports or results
+in vulnerabilities such as a sandbox escape, the report remains in scope. Deployments that
+run stdio servers at reduced privilege (containers, sandboxes) are responsible for enforcing
+isolation at that boundary; the SDK's stdio transport is not a sandbox.
 
 #### Server Capabilities and Side Effects
 
@@ -171,6 +187,24 @@ from flaws in the MCP specification or official SDK implementations:
   multi-tenant deployments
 
 This list is not exhaustive.
+
+## SDK Vulnerability Disclosure
+
+Security reports against the official MCP SDKs are handled through GitHub Security
+Advisories on the affected SDK's repository. Private vulnerability reporting is enabled on
+every official SDK repository in the modelcontextprotocol organization.
+
+When a report is received, the maintainers of that SDK assess whether the same issue
+affects other official SDKs. Many MCP vulnerabilities stem from shared patterns, transport
+implementations, or spec-level behavior that multiple SDKs implement the same way. The
+receiving maintainers coordinate with the maintainers of other potentially affected SDKs to
+determine which are impacted and to what degree, so that fixes and advisories can be
+released together rather than leaving some SDKs exposed after others have published.
+
+If the root cause is a defect in the specification rather than an implementation bug, the
+coordinating maintainers will discuss this with the specification maintainers.
+
+CVEs are assigned through GitHub's CNA as part of the GHSA workflow.
 
 ### Reporting Guidelines
 
